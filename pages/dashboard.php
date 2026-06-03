@@ -120,13 +120,6 @@ if (!isset($_SESSION["user_id"])) {
                 <?php echo htmlspecialchars($_SESSION["user_name"]); ?>
             </h1>
 
-            <a
-                href="../actions/logout.php"
-                class="logout-btn"
-            >
-                Logout
-            </a>
-
         </div>
 
         <div class="cards-container">

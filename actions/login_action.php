@@ -18,15 +18,19 @@ $stmt->execute([
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$user) {
-
-    die("User not found");
-
+    $_SESSION["error"] = "User not found or invalid credentials";
+    // Запазваме имейла, дори и да не е намерен такъв потребител
+    $_SESSION["old_input"] = ["email" => $email]; 
+    header("Location: ../pages/login.php");
+    exit;
 }
 
 if (!password_verify($password, $user["password"])) {
-
-    die("Invalid password");
-
+    $_SESSION["error"] = "Invalid password";
+    // Запазваме имейла, за да остане попълнен
+    $_SESSION["old_input"] = ["email" => $email]; 
+    header("Location: ../pages/login.php");
+    exit;
 }
 
 $_SESSION["user_id"] = $user["id"];
