@@ -175,15 +175,13 @@ $presentation = $stmt->fetch(PDO::FETCH_ASSOC);
             </div>
 
             <div class="form-group">
-
                 <label>Category</label>
-
-                <input
-                    type="text"
-                    name="category"
-                    value="<?php echo htmlspecialchars($presentation["category"]); ?>"
-                >
-
+                <select name="category" style="width:100%; padding:14px; border:1px solid #d1d5db; border-radius:10px; font-size:16px;">
+                    <option value="Cloud" <?php if($presentation["category"] === 'Cloud') echo 'selected'; ?>>Cloud</option>
+                    <option value="AI" <?php if($presentation["category"] === 'AI') echo 'selected'; ?>>AI</option>
+                    <option value="Web" <?php if($presentation["category"] === 'Web') echo 'selected'; ?>>Web</option>
+                    <option value="Security" <?php if($presentation["category"] === 'Security') echo 'selected'; ?>>Security</option>
+                </select>
             </div>
 
             <div class="form-group">

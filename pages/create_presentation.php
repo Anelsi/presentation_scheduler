@@ -163,15 +163,13 @@ if (!isset($_SESSION["user_id"])) {
             </div>
 
             <div class="form-group">
-
                 <label>Category</label>
-
-                <input
-                    type="text"
-                    name="category"
-                    placeholder="Category"
-                >
-
+                <select name="category" style="width:100%; padding:14px; border:1px solid #d1d5db; border-radius:10px; font-size:16px;">
+                    <option value="Cloud">Cloud</option>
+                    <option value="AI">AI</option>
+                    <option value="Web">Web</option>
+                    <option value="Security">Security</option>
+                </select>
             </div>
 
             <div class="form-group">
