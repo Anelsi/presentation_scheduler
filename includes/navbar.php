@@ -56,6 +56,12 @@
             <a href="my_schedule.php" class="nav-link">
                 My Schedule
             </a>
+            <a href="my_interests.php" class="nav-link">
+                My Interests
+            </a>
+            <a href="recommended.php" class="nav-link">
+                Recommended
+            </a>
         <?php endif; ?>
     </div>
     <div class="nav-right">
