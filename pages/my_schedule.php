@@ -50,6 +50,9 @@ $presentations = $stmt->fetchAll(PDO::FETCH_ASSOC);
         .btn{ padding:10px 14px; border-radius:8px; text-decoration:none; color:white; font-size:14px; transition:0.3s; }
         .open-btn{ background:#2563eb; } .open-btn:hover{ background:#1d4ed8; }
         .remove-btn{ background:#dc2626; } .remove-btn:hover{ background:#b91c1c; }
+        .schedule-actions{ text-align:center; margin:-10px 0 30px; }
+        .print-btn{ display:inline-block; padding:12px 18px; background:#111827; color:white; text-decoration:none; border-radius:10px; font-weight:bold; transition:0.3s; }
+        .print-btn:hover{ background:#374151; transform:translateY(-2px); }
         .empty-message { background: white; padding: 20px; border-radius: 16px; color: #6b7280; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); font-size: 18px; grid-column: 1 / -1; }
     </style>
 </head>
@@ -59,6 +62,10 @@ $presentations = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <a href="dashboard.php" class="back-link">← Back to Dashboard</a>
 
     <h1 class="page-title">My Schedule</h1>
+
+    <div class="schedule-actions">
+        <a href="../actions/print_schedule_pdf.php" class="print-btn">Print schedule to PDF</a>
+    </div>
 
     <div class="schedule-container">
         <?php if (count($presentations) === 0): ?>

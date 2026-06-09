@@ -1,16 +1,20 @@
 <?php
 
-$host = "localhost";
-$dbname = "presentation_scheduler";
-$username = "root";
-$password = "";
+$config = require __DIR__ . '/app.php';
+$db = $config['db'];
 
 try {
 
     $pdo = new PDO(
-        "mysql:host=$host;dbname=$dbname;charset=utf8",
-        $username,
-        $password
+        sprintf(
+            'mysql:host=%s;port=%d;dbname=%s;charset=%s',
+            $db['host'],
+            $db['port'],
+            $db['database'],
+            $db['charset']
+        ),
+        $db['username'],
+        $db['password']
     );
 
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);

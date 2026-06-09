@@ -34,9 +34,15 @@ if (
 
     try {
 
+        if ($s3 === null || $bucketName === "") {
+            $_SESSION["error"] = "S3 is not configured. Add AWS settings in the .env file.";
+            header("Location: ../pages/create_presentation.php");
+            exit;
+        }
+
         $result = $s3->putObject([
 
-            "Bucket" => "presentation-scheduler-anelia-2026-2",
+            "Bucket" => $bucketName,
 
             "Key" => $fileName,
 
