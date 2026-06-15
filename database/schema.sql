@@ -1,4 +1,4 @@
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100),
     email VARCHAR(100) UNIQUE,
@@ -6,7 +6,7 @@ CREATE TABLE users (
     role VARCHAR(20) DEFAULT 'student'
 );
 
-CREATE TABLE presentations (
+CREATE TABLE IF NOT EXISTS presentations (
     id INT AUTO_INCREMENT PRIMARY KEY,
 
     title VARCHAR(255),
@@ -30,7 +30,7 @@ CREATE TABLE presentations (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE interests (
+CREATE TABLE IF NOT EXISTS interests (
     id INT AUTO_INCREMENT PRIMARY KEY,
 
     user_id INT,
@@ -39,7 +39,7 @@ CREATE TABLE interests (
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
-CREATE TABLE personal_schedule (
+CREATE TABLE IF NOT EXISTS personal_schedule (
     id INT AUTO_INCREMENT PRIMARY KEY,
 
     user_id INT,
