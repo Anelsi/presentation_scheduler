@@ -14,4 +14,7 @@ WORKDIR /var/www/html
 COPY . /var/www/html
 
 RUN if [ ! -d vendor ]; then composer install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader; fi \
-    && chown -R www-data:www-data /var/www/html
+    && chown -R www-data:www-data /var/www/html \
+    && chmod +x /var/www/html/docker/entrypoint.sh
+
+ENTRYPOINT ["/var/www/html/docker/entrypoint.sh"]
