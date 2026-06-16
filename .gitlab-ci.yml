@@ -6,7 +6,7 @@ stages:
   - deploy
 variables:
   DOCKER_DRIVER: overlay2
-  CI_CONFIG_HASH: 5b959d2093c99cf6c4e77a844f22a0262150737aeb2d902c1b5fd16ad1276a73
+  CI_CONFIG_HASH: 4b04fe7223044de53a1b45c443f31cf55dc727fbe4dd1cf24fff670d0d11267e
 .before_script_common:
   variables: {}
   before_script:
@@ -24,7 +24,7 @@ variables:
         echo "Unsupported branch: $CI_COMMIT_BRANCH"
         exit 1
       fi
-build_app:
+build_main:
   extends: .before_script_common
   stage: build
   rules:
@@ -34,13 +34,13 @@ build_app:
   tags:
     - HSS
   script:
-    - docker compose -f docker-compose.yml build app --no-cache
-    - docker tag w26-presentation-scheduler-2wogzy-app w26-presentation-scheduler-2wogzy-app:$CI_COMMIT_BRANCH
-    - docker save w26-presentation-scheduler-2wogzy-app:$CI_COMMIT_BRANCH -o w26-presentation-scheduler-2wogzy-app.tar
+    - docker compose -f docker-compose.yml build main --no-cache
+    - docker tag w26-presentation-scheduler-2wogzy-main w26-presentation-scheduler-2wogzy-main:$CI_COMMIT_BRANCH
+    - docker save w26-presentation-scheduler-2wogzy-main:$CI_COMMIT_BRANCH -o w26-presentation-scheduler-2wogzy-main.tar
   artifacts:
     paths:
-      - w26-presentation-scheduler-2wogzy-app.tar
-deploy_app:
+      - w26-presentation-scheduler-2wogzy-main.tar
+deploy_main:
   extends: .before_script_common
   stage: deploy
   rules:
@@ -50,9 +50,9 @@ deploy_app:
   tags:
     - HSS
   needs:
-    - build_app
+    - build_main
   script:
-    - docker-compose rm -s -f app || true
-    - docker rmi w26-presentation-scheduler-2wogzy-app:$CI_COMMIT_BRANCH || true
-    - docker load -i w26-presentation-scheduler-2wogzy-app.tar
-    - docker-compose up -d app
+    - docker-compose rm -s -f main || true
+    - docker rmi w26-presentation-scheduler-2wogzy-main:$CI_COMMIT_BRANCH || true
+    - docker load -i w26-presentation-scheduler-2wogzy-main.tar
+    - docker-compose up -d main
