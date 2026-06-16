@@ -1,7 +1,6 @@
 services:
   main:
     build: .
-    container_name: presentation_scheduler_app
     ports:
       - "${APP_PORT:-3000}:80"
     environment:
