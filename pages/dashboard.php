@@ -2,12 +2,26 @@
 
 session_start();
 
+
 if (!isset($_SESSION["user_id"])) {
 
     header("Location: login.php");
     exit;
 
 }
+
+require_once "../config/db.php";
+$todaySql = "
+SELECT *
+FROM presentations
+WHERE presentation_date = CURDATE()
+ORDER BY start_time ASC
+";
+
+$todayStmt = $pdo->prepare($todaySql);
+$todayStmt->execute();
+
+$todayPresentations = $todayStmt->fetchAll(PDO::FETCH_ASSOC);
 
 ?>
 
@@ -103,6 +117,39 @@ if (!isset($_SESSION["user_id"])) {
         .card-btn:hover{
             background:#3730a3;
         }
+        .today-section{
+    margin-top:50px;
+}
+
+.today-title{
+    font-size:32px;
+    color:#111827;
+    margin-bottom:20px;
+}
+
+.today-card{
+    background:white;
+    padding:20px;
+    border-radius:15px;
+    margin-bottom:15px;
+    box-shadow:0 4px 15px rgba(0,0,0,0.08);
+}
+
+.today-card h3{
+    margin:0 0 10px 0;
+}
+
+.today-info{
+    color:#6b7280;
+    margin-bottom:5px;
+}
+
+.empty-message{
+    background:white;
+    padding:20px;
+    border-radius:15px;
+    color:#6b7280;
+}
 
     </style>
 
@@ -165,6 +212,53 @@ if (!isset($_SESSION["user_id"])) {
             </div>
 
         </div>
+
+        <div class="today-section">
+
+    <h2 class="today-title">
+        Today's Presentations
+    </h2>
+
+    <?php if (count($todayPresentations) > 0): ?>
+
+        <?php foreach ($todayPresentations as $presentation): ?>
+
+            <div class="today-card">
+
+                <h3>
+                    <?php echo htmlspecialchars($presentation["title"]); ?>
+                </h3>
+
+                <div class="today-info">
+                    Presenter:
+                    <?php echo htmlspecialchars($presentation["presenter"]); ?>
+                </div>
+
+                <div class="today-info">
+                    Time:
+                    <?php echo $presentation["start_time"]; ?>
+                    -
+                    <?php echo $presentation["end_time"]; ?>
+                </div>
+
+                <div class="today-info">
+                    Room:
+                    <?php echo htmlspecialchars($presentation["room"]); ?>
+                </div>
+
+            </div>
+
+        <?php endforeach; ?>
+
+    <?php else: ?>
+
+        <div class="empty-message">
+            No presentations scheduled for today.
+        </div>
+
+    <?php endif; ?>
+
+</div>
 
     </div>
 
