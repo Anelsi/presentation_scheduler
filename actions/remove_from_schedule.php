@@ -28,5 +28,6 @@ $stmt->execute([
     ":presentation_id" => $presentationId
 ]);
 
-header("Location: ../pages/my_schedule.php");
+$referer = $_SERVER["HTTP_REFERER"] ?? "../pages/my_schedule.php";
+header("Location: " . $referer);
 exit;

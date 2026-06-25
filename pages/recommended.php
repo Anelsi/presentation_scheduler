@@ -63,6 +63,7 @@ body{
     display:grid;
     grid-template-columns:repeat(auto-fill,minmax(320px,1fr));
     gap:20px;
+    align-items:stretch;
 }
 
 .presentation-card{
@@ -70,6 +71,8 @@ body{
     padding:25px;
     border-radius:20px;
     box-shadow:0 4px 15px rgba(0,0,0,0.1);
+    display:flex;
+    flex-direction:column;
 }
 
 .presentation-title{
@@ -109,7 +112,8 @@ body{
 }
 
 .actions{
-    margin-top:20px;
+    margin-top:auto;
+    padding-top:20px;
     display:flex;
     gap:10px;
     flex-wrap:wrap;
