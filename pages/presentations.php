@@ -66,6 +66,8 @@ $pastPresentations = $pastStmt->fetchAll(PDO::FETCH_ASSOC);
         .create-btn:hover{ background:#3730a3; }
         .export-btn{ display:inline-block; padding:12px 20px; background:#111827; color:white; text-decoration:none; border-radius:10px; transition:0.3s; }
         .export-btn:hover{ background:#374151; }
+        .excel-btn{ display:inline-block; padding:12px 20px; background:#047857; color:white; text-decoration:none; border-radius:10px; transition:0.3s; }
+        .excel-btn:hover{ background:#065f46; }
         
         .filter-form { display: flex; gap: 20px; align-items: center; margin-bottom: 30px; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); flex-wrap: wrap; }
         .filter-checkboxes { display: flex; gap: 15px; }
@@ -116,6 +118,7 @@ $pastPresentations = $pastStmt->fetchAll(PDO::FETCH_ASSOC);
         <?php endif; ?>
 
         <a href="../actions/export_presentations_csv.php" class="export-btn">Export CSV</a>
+        <a href="../actions/export_presentations_excel.php" class="excel-btn">Export Excel</a>
     </div>
 
     <form class="filter-form" action="presentations.php" method="GET">
