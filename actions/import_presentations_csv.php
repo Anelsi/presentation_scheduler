@@ -24,7 +24,6 @@ $requiredColumns = [
     "title",
     "description",
     "presenter",
-    "category",
     "presentation_date",
     "start_time",
     "end_time",
@@ -32,6 +31,62 @@ $requiredColumns = [
 ];
 
 $allowedCategories = ["Cloud", "AI", "Web", "Security"];
+$categoryKeywords = [
+    "AI" => [
+        "ai",
+        "artificial intelligence",
+        "machine learning",
+        "llm",
+        "neural",
+        "prompt",
+        "chatbot",
+        "openai",
+        "изкуствен интелект",
+        "машинно обучение"
+    ],
+    "Cloud" => [
+        "cloud",
+        "docker",
+        "container",
+        "containers",
+        "kubernetes",
+        "aws",
+        "azure",
+        "deployment",
+        "devops",
+        "облак",
+        "контейнери",
+        "докер"
+    ],
+    "Web" => [
+        "web",
+        "php",
+        "html",
+        "css",
+        "javascript",
+        "api",
+        "frontend",
+        "backend",
+        "form",
+        "уеб",
+        "сайт",
+        "форма"
+    ],
+    "Security" => [
+        "security",
+        "password",
+        "hashing",
+        "encryption",
+        "authentication",
+        "xss",
+        "sql injection",
+        "vulnerability",
+        "сигурност",
+        "парола",
+        "криптиране",
+        "уязвимост"
+    ]
+];
 
 function redirectWithImportError($message)
 {
@@ -62,6 +117,61 @@ function normalizeCsvTime($value)
     }
 
     return null;
+}
+
+function normalizeTextForMatching($value)
+{
+    if (function_exists("mb_strtolower")) {
+        return mb_strtolower($value, "UTF-8");
+    }
+
+    return strtolower($value);
+}
+
+function normalizeCategory($category, $allowedCategories)
+{
+    foreach ($allowedCategories as $allowedCategory) {
+        if (strtolower($category) === strtolower($allowedCategory)) {
+            return $allowedCategory;
+        }
+    }
+
+    return null;
+}
+
+function detectCategory($title, $description, $categoryKeywords)
+{
+    $text = normalizeTextForMatching($title . " " . $description);
+    $scores = [];
+
+    foreach ($categoryKeywords as $category => $keywords) {
+        $scores[$category] = 0;
+
+        foreach ($keywords as $keyword) {
+            if (strpos($text, normalizeTextForMatching($keyword)) !== false) {
+                $scores[$category]++;
+            }
+        }
+    }
+
+    arsort($scores);
+
+    $bestCategory = array_key_first($scores);
+    $bestScore = $scores[$bestCategory] ?? 0;
+
+    if ($bestScore === 0) {
+        return null;
+    }
+
+    $matchingCategories = array_filter($scores, function ($score) use ($bestScore) {
+        return $score === $bestScore;
+    });
+
+    if (count($matchingCategories) > 1) {
+        return null;
+    }
+
+    return $bestCategory;
 }
 
 function duplicateImportKey($presentation)
@@ -123,6 +233,8 @@ foreach ($requiredColumns as $column) {
 
     $columnIndexes[$column] = $index;
 }
+
+$categoryIndex = array_search("category", $normalizedHeader, true);
 
 if (!empty($missingColumns)) {
     fclose($handle);
@@ -198,10 +310,36 @@ while (($row = fgetcsv($handle)) !== false) {
         continue;
     }
 
-    if (!in_array($presentation["category"], $allowedCategories, true)) {
-        $skipped++;
-        $errors[] = "Row " . $rowNumber . " skipped: invalid category.";
-        continue;
+    $category = "";
+
+    if ($categoryIndex !== false) {
+        $category = trim($row[$categoryIndex] ?? "");
+    }
+
+    if ($category !== "") {
+        $normalizedCategory = normalizeCategory($category, $allowedCategories);
+
+        if ($normalizedCategory === null) {
+            $skipped++;
+            $errors[] = "Row " . $rowNumber . " skipped: invalid category.";
+            continue;
+        }
+
+        $presentation["category"] = $normalizedCategory;
+    } else {
+        $detectedCategory = detectCategory(
+            $presentation["title"],
+            $presentation["description"],
+            $categoryKeywords
+        );
+
+        if ($detectedCategory === null) {
+            $skipped++;
+            $errors[] = "Row " . $rowNumber . " skipped: category could not be detected.";
+            continue;
+        }
+
+        $presentation["category"] = $detectedCategory;
     }
 
     $normalizedDate = normalizeCsvDate($presentation["presentation_date"]);
