@@ -6,11 +6,34 @@ session_start();
 
 require_once "../config/db.php";
 require_once "../config/aws_config.php";
+require_once "../includes/category_detection.php";
 
 $title = trim($_POST["title"]);
 $description = trim($_POST["description"]);
 $presenter = trim($_POST["presenter"]);
-$category = trim($_POST["category"]);
+$category = trim($_POST["category"] ?? "");
+
+if ($category !== "") {
+    $normalizedCategory = normalizePresentationCategory($category);
+
+    if ($normalizedCategory === null) {
+        $_SESSION["error"] = "Please choose a valid category.";
+        header("Location: ../pages/create_presentation.php");
+        exit;
+    }
+
+    $category = $normalizedCategory;
+} else {
+    $detectedCategory = detectPresentationCategory($title, $description);
+
+    if ($detectedCategory === null) {
+        $_SESSION["error"] = "Category could not be detected. Please choose one manually.";
+        header("Location: ../pages/create_presentation.php");
+        exit;
+    }
+
+    $category = $detectedCategory;
+}
 
 $presentation_date = $_POST["presentation_date"];
 

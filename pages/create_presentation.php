@@ -229,8 +229,9 @@ if (!isset($_SESSION["user_id"])) {
             </div>
 
             <div class="form-group">
-                <label>Category</label>
+                <label>Category (Optional)</label>
                 <select name="category" style="width:100%; padding:14px; border:1px solid #d1d5db; border-radius:10px; font-size:16px;">
+                    <option value="">Auto-detect from title and description</option>
                     <option value="Cloud">Cloud</option>
                     <option value="AI">AI</option>
                     <option value="Web">Web</option>
