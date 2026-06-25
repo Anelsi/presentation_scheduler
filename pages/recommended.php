@@ -11,6 +11,13 @@ if (!isset($_SESSION["user_id"])) {
 
 $userId = $_SESSION["user_id"];
 
+$scheduledSql = "SELECT presentation_id FROM personal_schedule WHERE user_id = :user_id";
+$scheduledStmt = $pdo->prepare($scheduledSql);
+$scheduledStmt->execute([
+    ":user_id" => $userId
+]);
+$scheduledIds = $scheduledStmt->fetchAll(PDO::FETCH_COLUMN);
+
 $sql = "
 SELECT DISTINCT p.*
 FROM presentations p
@@ -81,6 +88,59 @@ body{
     text-align:center;
 }
 
+.alert-success{
+    background:#d1fae5;
+    color:#065f46;
+    padding:15px;
+    border-radius:10px;
+    margin-bottom:20px;
+    border:1px solid #a7f3d0;
+    font-weight:bold;
+}
+
+.alert-error{
+    background:#fde8e8;
+    color:#dc2626;
+    padding:15px;
+    border-radius:10px;
+    margin-bottom:20px;
+    border:1px solid #f8b4b4;
+    font-weight:bold;
+}
+
+.actions{
+    margin-top:20px;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+}
+
+.btn{
+    padding:10px 14px;
+    border-radius:8px;
+    text-decoration:none;
+    color:white;
+    font-size:14px;
+    flex:1;
+    text-align:center;
+    box-sizing:border-box;
+}
+
+.add-btn{
+    background:#059669;
+}
+
+.add-btn:hover{
+    background:#047857;
+}
+
+.added-btn{
+    background:#e5e7eb;
+    color:#6b7280;
+    cursor:default;
+    border:1px solid #d1d5db;
+}
+
 </style>
 
 </head>
@@ -92,6 +152,14 @@ body{
 <h1 class="page-title">
     Recommended For You
 </h1>
+
+<?php if (isset($_SESSION["success"])): ?>
+    <div class="alert-success"><?php echo htmlspecialchars($_SESSION["success"]); unset($_SESSION["success"]); ?></div>
+<?php endif; ?>
+
+<?php if (isset($_SESSION["error"])): ?>
+    <div class="alert-error"><?php echo htmlspecialchars($_SESSION["error"]); unset($_SESSION["error"]); ?></div>
+<?php endif; ?>
 
 <?php if(count($presentations) === 0): ?>
 
@@ -135,6 +203,14 @@ body{
 <strong>Room:</strong>
 <?php echo htmlspecialchars($presentation["room"]); ?>
 </p>
+
+<div class="actions">
+<?php if (in_array($presentation["id"], $scheduledIds)): ?>
+    <span class="btn added-btn">Added</span>
+<?php else: ?>
+    <a href="../actions/add_to_schedule.php?id=<?php echo $presentation["id"]; ?>" class="btn add-btn">Add To Schedule</a>
+<?php endif; ?>
+</div>
 
 </div>
 
