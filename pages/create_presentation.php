@@ -53,6 +53,10 @@ if (!isset($_SESSION["user_id"])) {
             box-shadow:0 4px 15px rgba(0,0,0,0.1);
         }
 
+        .import-container{
+            margin-bottom:25px;
+        }
+
         .form-group{
             margin-bottom:20px;
         }
@@ -101,6 +105,28 @@ if (!isset($_SESSION["user_id"])) {
             background:#3730a3;
         }
 
+        .alert-success{
+            max-width:700px;
+            margin:0 auto 20px auto;
+            background:#d1fae5;
+            color:#065f46;
+            padding:15px;
+            border-radius:10px;
+            border:1px solid #a7f3d0;
+            font-weight:bold;
+        }
+
+        .alert-error{
+            max-width:700px;
+            margin:0 auto 20px auto;
+            background:#fde8e8;
+            color:#dc2626;
+            padding:15px;
+            border-radius:10px;
+            border:1px solid #f8b4b4;
+            font-weight:bold;
+        }
+
     </style>
 
 </head>
@@ -118,6 +144,46 @@ if (!isset($_SESSION["user_id"])) {
     <h1 class="page-title">
         Create Presentation
     </h1>
+
+    <?php if (isset($_SESSION["success"])): ?>
+        <div class="alert-success"><?php echo htmlspecialchars($_SESSION["success"]); unset($_SESSION["success"]); ?></div>
+    <?php endif; ?>
+
+    <?php if (isset($_SESSION["error"])): ?>
+        <div class="alert-error"><?php echo htmlspecialchars($_SESSION["error"]); unset($_SESSION["error"]); ?></div>
+    <?php endif; ?>
+
+    <div class="form-container import-container">
+
+        <form
+            action="../actions/import_presentations_csv.php"
+            method="POST"
+            enctype="multipart/form-data"
+        >
+
+            <div class="form-group">
+
+                <label>Import CSV</label>
+
+                <input
+                    type="file"
+                    name="presentation_csv"
+                    accept=".csv,text/csv"
+                    required
+                >
+
+            </div>
+
+            <button
+                type="submit"
+                class="submit-btn"
+            >
+                Import Presentations
+            </button>
+
+        </form>
+
+    </div>
 
     <div class="form-container">
 

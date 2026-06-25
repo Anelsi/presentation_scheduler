@@ -61,8 +61,11 @@ $pastPresentations = $pastStmt->fetchAll(PDO::FETCH_ASSOC);
         body{ font-family: Arial, sans-serif; background:#f4f6f9; margin:0; padding:40px; }
         .page-title{ font-size:42px; margin-bottom:20px; color:#222; }
         .section-title { font-size: 30px; margin-bottom: 25px; margin-top: 40px; color: #111827; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px; }
-        .create-btn{ display:inline-block; padding:12px 20px; background:#4f46e5; color:white; text-decoration:none; border-radius:10px; margin-bottom:30px; transition:0.3s; }
+        .page-actions{ display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:30px; }
+        .create-btn{ display:inline-block; padding:12px 20px; background:#4f46e5; color:white; text-decoration:none; border-radius:10px; transition:0.3s; }
         .create-btn:hover{ background:#3730a3; }
+        .export-btn{ display:inline-block; padding:12px 20px; background:#111827; color:white; text-decoration:none; border-radius:10px; transition:0.3s; }
+        .export-btn:hover{ background:#374151; }
         
         .filter-form { display: flex; gap: 20px; align-items: center; margin-bottom: 30px; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); flex-wrap: wrap; }
         .filter-checkboxes { display: flex; gap: 15px; }
@@ -107,9 +110,13 @@ $pastPresentations = $pastStmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="alert-error"><?php echo htmlspecialchars($_SESSION["error"]); unset($_SESSION["error"]); ?></div>
     <?php endif; ?>
 
-    <?php if ($_SESSION["user_role"] === "admin"): ?>
-        <a href="create_presentation.php" class="create-btn">+ Create Presentation</a>
-    <?php endif; ?>
+    <div class="page-actions">
+        <?php if ($_SESSION["user_role"] === "admin"): ?>
+            <a href="create_presentation.php" class="create-btn">+ Create Presentation</a>
+        <?php endif; ?>
+
+        <a href="../actions/export_presentations_csv.php" class="export-btn">Export CSV</a>
+    </div>
 
     <form class="filter-form" action="presentations.php" method="GET">
         <label style="font-weight: bold; color: #374151;">Filter by Categories:</label>
