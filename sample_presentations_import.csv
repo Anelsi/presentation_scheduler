@@ -1,0 +1,5 @@
+title,description,presenter,category,presentation_date,start_time,end_time,room
+AI Prompting Basics,Using LLM prompts and chatbots effectively,Ivan Petrov,,2026-07-10,10:00,10:30,Room 101
+Docker Deployments,Cloud deployment with Docker containers,Maria Ivanova,,2026-07-10,11:00,11:45,Room 202
+Secure Password Storage,Password hashing encryption and authentication basics,Georgi Dimitrov,,2026-07-11,09:30,10:15,Lab 3
+Modern PHP Forms,Building web forms with PHP HTML CSS and JavaScript,Elena Stoyanova,,2026-07-11,13:00,13:40,Room 305
