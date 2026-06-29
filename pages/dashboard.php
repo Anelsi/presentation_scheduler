@@ -34,32 +34,59 @@ $upcomingCountStmt->execute([
 
 $upcomingPresentationsCount = (int) $upcomingCountStmt->fetchColumn();
 
-$popularCategorySql = "
-SELECT category, COUNT(*) AS presentation_count
+$categoryStatsSql = "
+SELECT COALESCE(NULLIF(category, ''), 'Uncategorized') AS category_name, COUNT(*) AS presentation_count
 FROM presentations
-WHERE category IS NOT NULL
-AND category <> ''
-GROUP BY category
-ORDER BY presentation_count DESC, category ASC
-LIMIT 1
+GROUP BY category_name
+ORDER BY presentation_count DESC, category_name ASC
 ";
 
-$popularCategoryStmt = $pdo->prepare($popularCategorySql);
-$popularCategoryStmt->execute();
-$popularCategory = $popularCategoryStmt->fetch(PDO::FETCH_ASSOC);
+$categoryStatsStmt = $pdo->prepare($categoryStatsSql);
+$categoryStatsStmt->execute();
+$categoryStats = $categoryStatsStmt->fetchAll(PDO::FETCH_ASSOC);
 
-$mostScheduledSql = "
-SELECT p.title, COUNT(ps.id) AS schedule_count
-FROM personal_schedule ps
-JOIN presentations p ON ps.presentation_id = p.id
-GROUP BY p.id, p.title
-ORDER BY schedule_count DESC, p.title ASC
-LIMIT 1
-";
+$categoryTotal = array_sum(array_map(
+    fn ($category) => (int) $category["presentation_count"],
+    $categoryStats
+));
 
-$mostScheduledStmt = $pdo->prepare($mostScheduledSql);
-$mostScheduledStmt->execute();
-$mostScheduledPresentation = $mostScheduledStmt->fetch(PDO::FETCH_ASSOC);
+$categoryColors = [
+    "#2563eb",
+    "#059669",
+    "#dc2626",
+    "#7c3aed",
+    "#d97706",
+    "#0891b2",
+    "#be123c",
+    "#4f46e5"
+];
+
+$categorySegments = [];
+$currentPercent = 0;
+
+foreach ($categoryStats as $index => $category) {
+    $count = (int) $category["presentation_count"];
+    $percent = $categoryTotal > 0 ? ($count / $categoryTotal) * 100 : 0;
+    $nextPercent = $index === array_key_last($categoryStats)
+        ? 100
+        : $currentPercent + $percent;
+    $color = $categoryColors[$index % count($categoryColors)];
+
+    $categoryStats[$index]["color"] = $color;
+    $categoryStats[$index]["percent"] = $percent;
+    $categorySegments[] = $color
+        . " "
+        . round($currentPercent, 4)
+        . "% "
+        . round($nextPercent, 4)
+        . "%";
+
+    $currentPercent = $nextPercent;
+}
+
+$categoryPieBackground = count($categorySegments) > 0
+    ? "conic-gradient(" . implode(", ", $categorySegments) . ")"
+    : "#e5e7eb";
 
 $todaySql = "
 SELECT *
@@ -134,9 +161,9 @@ $todayPresentations = $todayStmt->fetchAll(PDO::FETCH_ASSOC);
 
         .stats-grid{
             display:grid;
-            grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+            grid-template-columns:repeat(2,minmax(0,1fr));
             gap:18px;
-            margin-bottom:30px;
+            margin-bottom:22px;
         }
 
         .stat-card{
@@ -171,6 +198,79 @@ $todayPresentations = $todayStmt->fetchAll(PDO::FETCH_ASSOC);
             color:#6b7280;
             margin-top:8px;
             font-size:14px;
+        }
+
+        .category-chart-card{
+            background:white;
+            padding:26px;
+            border-radius:16px;
+            box-shadow:0 4px 15px rgba(0,0,0,0.08);
+            margin-bottom:30px;
+        }
+
+        .chart-title{
+            color:#111827;
+            font-size:24px;
+            margin:0 0 20px;
+        }
+
+        .chart-content{
+            display:flex;
+            align-items:center;
+            gap:34px;
+            flex-wrap:wrap;
+        }
+
+        .pie-chart{
+            width:220px;
+            height:220px;
+            border-radius:50%;
+            flex:0 0 auto;
+            box-shadow:inset 0 0 0 1px rgba(17,24,39,0.08);
+        }
+
+        .chart-legend{
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+            gap:14px 22px;
+            flex:1;
+            min-width:260px;
+        }
+
+        .legend-item{
+            display:grid;
+            grid-template-columns:14px 1fr auto;
+            gap:10px;
+            align-items:center;
+            color:#374151;
+            font-size:15px;
+        }
+
+        .legend-swatch{
+            width:14px;
+            height:14px;
+            border-radius:4px;
+        }
+
+        .legend-category{
+            font-weight:bold;
+            overflow-wrap:anywhere;
+        }
+
+        .legend-count{
+            color:#6b7280;
+            white-space:nowrap;
+        }
+
+        @media (max-width: 700px){
+            .stats-grid{
+                grid-template-columns:1fr;
+            }
+
+            .pie-chart{
+                width:180px;
+                height:180px;
+            }
         }
 
         .dashboard-card{
@@ -280,33 +380,52 @@ $todayPresentations = $todayStmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="stat-detail">Still available to attend</div>
             </div>
 
-            <div class="stat-card">
-                <div class="stat-label">Popular Category</div>
-                <div class="stat-value text">
-                    <?php echo $popularCategory ? htmlspecialchars($popularCategory["category"]) : "None"; ?>
-                </div>
-                <div class="stat-detail">
-                    <?php if ($popularCategory): ?>
-                        <?php echo (int) $popularCategory["presentation_count"]; ?> presentation(s)
-                    <?php else: ?>
-                        No categories yet
-                    <?php endif; ?>
-                </div>
-            </div>
+        </div>
 
-            <div class="stat-card">
-                <div class="stat-label">Most Scheduled</div>
-                <div class="stat-value text">
-                    <?php echo $mostScheduledPresentation ? htmlspecialchars($mostScheduledPresentation["title"]) : "None"; ?>
+        <div class="category-chart-card">
+
+            <h2 class="chart-title">Presentations By Category</h2>
+
+            <?php if ($categoryTotal > 0): ?>
+
+                <div class="chart-content">
+
+                    <div
+                        class="pie-chart"
+                        style="background: <?php echo htmlspecialchars($categoryPieBackground); ?>;"
+                        role="img"
+                        aria-label="Presentation category distribution"
+                    ></div>
+
+                    <div class="chart-legend">
+
+                        <?php foreach ($categoryStats as $category): ?>
+                            <div class="legend-item">
+                                <span
+                                    class="legend-swatch"
+                                    style="background: <?php echo htmlspecialchars($category["color"]); ?>;"
+                                ></span>
+                                <span class="legend-category">
+                                    <?php echo htmlspecialchars($category["category_name"]); ?>
+                                </span>
+                                <span class="legend-count">
+                                    <?php echo (int) $category["presentation_count"]; ?>
+                                    (<?php echo round($category["percent"]); ?>%)
+                                </span>
+                            </div>
+                        <?php endforeach; ?>
+
+                    </div>
+
                 </div>
-                <div class="stat-detail">
-                    <?php if ($mostScheduledPresentation): ?>
-                        <?php echo (int) $mostScheduledPresentation["schedule_count"]; ?> schedule add(s)
-                    <?php else: ?>
-                        No schedule activity yet
-                    <?php endif; ?>
+
+            <?php else: ?>
+
+                <div class="empty-message">
+                    No category data yet.
                 </div>
-            </div>
+
+            <?php endif; ?>
 
         </div>
 
