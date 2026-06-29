@@ -11,15 +11,67 @@ if (!isset($_SESSION["user_id"])) {
 }
 
 require_once "../config/db.php";
+
+date_default_timezone_set("Europe/Sofia");
+
+$now = date("Y-m-d H:i:s");
+$today = date("Y-m-d");
+
+$totalPresentations = (int) $pdo
+    ->query("SELECT COUNT(*) FROM presentations")
+    ->fetchColumn();
+
+$upcomingCountSql = "
+SELECT COUNT(*)
+FROM presentations
+WHERE CONCAT(presentation_date, ' ', end_time) >= :now
+";
+
+$upcomingCountStmt = $pdo->prepare($upcomingCountSql);
+$upcomingCountStmt->execute([
+    ":now" => $now
+]);
+
+$upcomingPresentationsCount = (int) $upcomingCountStmt->fetchColumn();
+
+$popularCategorySql = "
+SELECT category, COUNT(*) AS presentation_count
+FROM presentations
+WHERE category IS NOT NULL
+AND category <> ''
+GROUP BY category
+ORDER BY presentation_count DESC, category ASC
+LIMIT 1
+";
+
+$popularCategoryStmt = $pdo->prepare($popularCategorySql);
+$popularCategoryStmt->execute();
+$popularCategory = $popularCategoryStmt->fetch(PDO::FETCH_ASSOC);
+
+$mostScheduledSql = "
+SELECT p.title, COUNT(ps.id) AS schedule_count
+FROM personal_schedule ps
+JOIN presentations p ON ps.presentation_id = p.id
+GROUP BY p.id, p.title
+ORDER BY schedule_count DESC, p.title ASC
+LIMIT 1
+";
+
+$mostScheduledStmt = $pdo->prepare($mostScheduledSql);
+$mostScheduledStmt->execute();
+$mostScheduledPresentation = $mostScheduledStmt->fetch(PDO::FETCH_ASSOC);
+
 $todaySql = "
 SELECT *
 FROM presentations
-WHERE presentation_date = CURDATE()
+WHERE presentation_date = :today
 ORDER BY start_time ASC
 ";
 
 $todayStmt = $pdo->prepare($todaySql);
-$todayStmt->execute();
+$todayStmt->execute([
+    ":today" => $today
+]);
 
 $todayPresentations = $todayStmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -78,6 +130,47 @@ $todayPresentations = $todayStmt->fetchAll(PDO::FETCH_ASSOC);
             display:grid;
             grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
             gap:25px;
+        }
+
+        .stats-grid{
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+            gap:18px;
+            margin-bottom:30px;
+        }
+
+        .stat-card{
+            background:white;
+            padding:22px;
+            border-radius:16px;
+            box-shadow:0 4px 15px rgba(0,0,0,0.08);
+            border-left:5px solid #4f46e5;
+        }
+
+        .stat-label{
+            color:#6b7280;
+            font-size:14px;
+            font-weight:bold;
+            text-transform:uppercase;
+            margin-bottom:10px;
+        }
+
+        .stat-value{
+            color:#111827;
+            font-size:32px;
+            font-weight:bold;
+            line-height:1.15;
+            overflow-wrap:anywhere;
+        }
+
+        .stat-value.text{
+            font-size:22px;
+        }
+
+        .stat-detail{
+            color:#6b7280;
+            margin-top:8px;
+            font-size:14px;
         }
 
         .dashboard-card{
@@ -166,6 +259,54 @@ $todayPresentations = $todayStmt->fetchAll(PDO::FETCH_ASSOC);
                 Welcome,
                 <?php echo htmlspecialchars($_SESSION["user_name"]); ?>
             </h1>
+
+        </div>
+
+        <div class="stats-grid">
+
+            <div class="stat-card">
+                <div class="stat-label">Total Presentations</div>
+                <div class="stat-value">
+                    <?php echo $totalPresentations; ?>
+                </div>
+                <div class="stat-detail">All created events</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Upcoming Events</div>
+                <div class="stat-value">
+                    <?php echo $upcomingPresentationsCount; ?>
+                </div>
+                <div class="stat-detail">Still available to attend</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Popular Category</div>
+                <div class="stat-value text">
+                    <?php echo $popularCategory ? htmlspecialchars($popularCategory["category"]) : "None"; ?>
+                </div>
+                <div class="stat-detail">
+                    <?php if ($popularCategory): ?>
+                        <?php echo (int) $popularCategory["presentation_count"]; ?> presentation(s)
+                    <?php else: ?>
+                        No categories yet
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Most Scheduled</div>
+                <div class="stat-value text">
+                    <?php echo $mostScheduledPresentation ? htmlspecialchars($mostScheduledPresentation["title"]) : "None"; ?>
+                </div>
+                <div class="stat-detail">
+                    <?php if ($mostScheduledPresentation): ?>
+                        <?php echo (int) $mostScheduledPresentation["schedule_count"]; ?> schedule add(s)
+                    <?php else: ?>
+                        No schedule activity yet
+                    <?php endif; ?>
+                </div>
+            </div>
 
         </div>
 

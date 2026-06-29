@@ -120,6 +120,26 @@ if (!$presentation) {
             background:#dc2626;
         }
 
+        .alert-success{
+            background:#d1fae5;
+            color:#065f46;
+            padding:15px;
+            border-radius:10px;
+            margin-bottom:20px;
+            border:1px solid #a7f3d0;
+            font-weight:bold;
+        }
+
+        .alert-error{
+            background:#fde8e8;
+            color:#dc2626;
+            padding:15px;
+            border-radius:10px;
+            margin-bottom:20px;
+            border:1px solid #f8b4b4;
+            font-weight:bold;
+        }
+
         .btn:hover{
             transform:translateY(-2px);
         }
@@ -133,6 +153,14 @@ if (!$presentation) {
 <?php require_once "../includes/navbar.php"; ?>
 
 <div class="details-container">
+
+    <?php if (isset($_SESSION["success"])): ?>
+        <div class="alert-success"><?php echo htmlspecialchars($_SESSION["success"]); unset($_SESSION["success"]); ?></div>
+    <?php endif; ?>
+
+    <?php if (isset($_SESSION["error"])): ?>
+        <div class="alert-error"><?php echo htmlspecialchars($_SESSION["error"]); unset($_SESSION["error"]); ?></div>
+    <?php endif; ?>
 
     <div class="details-card">
 

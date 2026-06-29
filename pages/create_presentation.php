@@ -295,17 +295,6 @@ if (!isset($_SESSION["user_id"])) {
 
             </div>
 
-            <div class="form-group">
-
-    <label>Invitation File (Optional)</label>
-
-    <input
-        type="file"
-        name="invitation_file"
-    >
-
-</div>
-
             <button
                 type="submit"
                 class="submit-btn"
