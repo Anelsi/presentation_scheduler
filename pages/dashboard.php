@@ -217,24 +217,24 @@ $todayPresentations = $todayStmt->fetchAll(PDO::FETCH_ASSOC);
         .chart-content{
             display:flex;
             align-items:center;
-            gap:34px;
+            gap:28px;
             flex-wrap:wrap;
         }
 
         .pie-chart{
-            width:220px;
-            height:220px;
+            width:210px;
+            height:210px;
             border-radius:50%;
             flex:0 0 auto;
             box-shadow:inset 0 0 0 1px rgba(17,24,39,0.08);
         }
 
         .chart-legend{
-            display:grid;
-            grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
-            gap:14px 22px;
-            flex:1;
-            min-width:260px;
+            display:flex;
+            flex-direction:column;
+            gap:10px;
+            flex:0 1 360px;
+            min-width:240px;
         }
 
         .legend-item{
@@ -270,6 +270,11 @@ $todayPresentations = $todayStmt->fetchAll(PDO::FETCH_ASSOC);
             .pie-chart{
                 width:180px;
                 height:180px;
+            }
+
+            .chart-legend{
+                flex:1 1 100%;
+                min-width:0;
             }
         }
 
