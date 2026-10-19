@@ -56,13 +56,6 @@ php database/seed.php
 
 If the `php` command is not available globally, run the command from the XAMPP shell or import `database/schema.sql` and `database/seed.sql` manually in phpMyAdmin.
 
-## Test Users
-
-```text
-student@example.com / Student123
-admin@example.com   / Admin123
-```
-
 ## Optional S3
 
 AWS S3 is optional. Leave `AWS_BUCKET`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `AWS_SESSION_TOKEN` empty to run the project locally without external services.
